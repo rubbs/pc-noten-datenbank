@@ -5,27 +5,41 @@ Hier sind die ProtoRPC Nachrichten definiert
 """
 
 import endpoints
-from protorpc import messages
-from protorpc import message_types
 from protorpc import remote
+
+# datastore access
+from google.appengine.ext import ndb
+
+from endpoints_proto_datastore.ndb import EndpointsModel
 
 package = 'rubbs.pc.noten'
 
+class Composer(EndpointsModel):
+    _message_fields_schema = ('id', 'name', 'birthday', 'dayOfDeath', 'created')
+    name = ndb.StringProperty()
+    birthday = ndb.DateTimeProperty()
+    dayOfDeath = ndb.DateTimeProperty()
+    created = ndb.DateTimeProperty(auto_now_add=True)
 
-class Composer(messages.Message):
-    name = messages.StringField(1, required=True)
-    birthday = message_types.DateTimeField(2)
-    dayOfDeath = message_types.DateTimeField(3)
+class Book(EndpointsModel):
+    _message_fields_schema = ('id', 'name', 'publisher', 'isbn', 'year', 'created')
+    name = ndb.StringProperty()
+    publisher = ndb.StringProperty()
+    isbn = ndb.StringProperty()
+    year = ndb.IntegerProperty()
+    created = ndb.DateTimeProperty(auto_now_add=True)
 
-class ComposerCollection(messages.Message):
-    items = messages.MessageField(Composer, 1, repeated=True)
+class Song(EndpointsModel):
+    _message_fields_schema = ('id', 'name', 'style', 'book', 'page', 'composer', 'created')
 
+    name = ndb.StringProperty()
+    style = ndb.StringProperty()
 
-STORED_COMPOSERS = ComposerCollection(items=[
-    Composer(name='Mozart'),
-    Composer(name='Bach')
-])
-
+    # properties for book
+    book = ndb.KeyProperty()
+    page = ndb.IntegerProperty()
+    composer = ndb.KeyProperty()
+    created = ndb.DateTimeProperty(auto_now_add=True)
 
 
 """
@@ -34,82 +48,53 @@ API code
 
 @endpoints.api(name='composer', version='v1')
 class ComposerApi(remote.Service):
+
     """ Composer Api """
+    @Composer.method(path='composer', name='composer.add')
+    def addComposer(self, comp):
+        comp.put()
+        return comp
 
-    # endpoint method to list available composers (GET)
-    @endpoints.method(message_types.VoidMessage, ComposerCollection,
-            path='composer',
-            http_method='GET',
-            name='composer.list'
-            )
+    @Composer.query_method(query_fields=('name',), path='composer', name='composer.get')
+    def getComposer(self, query):
+        return query
 
-    def composer_list(self, unused_request):
-        return STORED_COMPOSERS
-
-
-
-    # endpoint method to get special composer (GET)
-    GET_RESOURCE = endpoints.ResourceContainer(
-      message_types.VoidMessage,
-      id=messages.StringField(1, variant=messages.Variant.STRING, required=True))
-
-    @endpoints.method(GET_RESOURCE, Composer,
-            path='composer/{id}',
-            http_method='GET',
-            name='composer.get'
-            )
-
-    def composer_get(self, request):
-
-        for composer in STORED_COMPOSERS.items:
-            #return composer
-            if request.id in composer.name:
-                return composer
-        raise endpoints.NotFoundException('Composer %s not found' % (request.id))
+    @Composer.method( path='composer/{id}', http_method='DELETE', name='composer.delete', response_fields=())
+    def deleteComposer(self, object):
+        object.key.delete()
+        return object
 
 
-    # endpoint method to add new composer (POST)
-    ADD_RESOURCE = endpoints.ResourceContainer(Composer)
-    @endpoints.method(ADD_RESOURCE, Composer,
-            path='composer',
-            http_method='POST',
-            name='composer.add')
+    """ Book API """
+    @Book.method(path='book', name='book.add')
+    def addBook(self, book):
+        book.put()
+        return book
 
-    def composer_add(self, request):
-        c = Composer(name=request.name, birthday=request.birthday, dayOfDeath=request.dayOfDeath)
-        return c
-        #TODO datastore access
+    @Book.query_method(query_fields=('name','year'), path='book', name='book.get')
+    def getBook(self, query):
+        return query
 
-    # endpoint method to update user (PUT)
-    PUT_RESOURCE = endpoints.ResourceContainer(Composer, id=messages.StringField(1, variant=messages.Variant.STRING, required=True))
-    @endpoints.method(PUT_RESOURCE, Composer,
-            http_method='PUT',
-            path='composer/{id}',
-            name='composer.update')
-
-    def composer_update(self, request):
-        #TODO find user in datastore and update its values
-
-        for composer in STORED_COMPOSERS.items:
-            #return composer
-            if request.id in composer.name:
-                return composer
-        raise endpoints.NotFoundException('Composer %s not found' % (request.id))
+    @Book.method( path='book/{id}', http_method='DELETE', name='book.delete', response_fields=())
+    def deleteComposer(self, object):
+        object.key.delete()
+        return object
 
 
-    # endpoint method to delete composer
-    @endpoints.method(GET_RESOURCE, message_types.VoidMessage,
-            http_method='DELETE',
-            path='composer/{id}',
-            name='composer.delete')
+    """ Song API """
+    @Song.method(path='song', name='song.add')
+    def addSong(self, song):
+        song.put()
+        return song
 
-    def composer_delete(self, request):
-        #TODO find composer and delete from datastore
-        for composer in STORED_COMPOSERS.items:
-            #return composer
-            if request.id in composer.name:
-                return composer
-        raise endpoints.NotFoundException('Composer %s not found' % (request.id))
+    @Song.query_method (query_fields=('name', 'type', 'book'), path='song', name='song.get')
+    def getSong(self, query):
+        return query
+
+    @Song.method( path='song/{id}', http_method='DELETE', name='song.delete', response_fields=())
+    def deleteComposer(self, object):
+        object.key.delete()
+        return object
 
 
 APPLICATION = endpoints.api_server([ComposerApi])

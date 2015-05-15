@@ -9,6 +9,14 @@ handlers:
 - url: /_ah/spi/.*
   script: noten_api.APPLICATION
 
+- url: /(.+)
+  static_files: frontend/dist/\1
+  upload: frontend/dist/(.*)
+
+- url: /
+  static_files: frontend/dist/index.html
+  upload: frontend/dist/index.html
+
 libraries:
 - name: pycrypto
   version: latest
