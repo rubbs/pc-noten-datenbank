@@ -22,7 +22,13 @@ angular.module('frontendApp')
     };
 
     $scope.save = function(){
-      $scope.books.items.push(book.save($scope.newBook));
+
+      if($scope.books.items){
+        $scope.books.items.push(book.save($scope.newBook));
+      }
+      else {
+        book.save($scope.newBook);
+      }
       $scope.showAdd = false;
     };
   }]);

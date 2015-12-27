@@ -23,7 +23,12 @@ angular.module('frontendApp')
   };
 
   $scope.save = function(){
-    $scope.composers.items.push(composer.save($scope.newComposer));
+    if($scope.composers.items){
+      $scope.composers.items.push(composer.save($scope.newComposer));
+    }
+    else {
+      composer.save($scope.newComposer);
+    }
     $scope.showAdd = false;
   };
 

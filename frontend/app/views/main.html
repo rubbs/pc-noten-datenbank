@@ -1,23 +1,28 @@
-<div class="jumbotron">
-  <h1>'Allo, 'Allo!</h1>
-  <p class="lead">
-    <img src="images/yeoman.png" alt="I'm Yeoman"><br>
-    Always a pleasure scaffolding your apps.
-  </p>
-  <p><a class="btn btn-lg btn-success" ng-href="#">Splendid!<span class="glyphicon glyphicon-ok"></span></a></p>
-</div>
+<md-card>
+  <md-card-content>
+    <md-select placeholder="Komponist" ng-model="composer">
+      <md-option ng-repeat="c in composers.items">
+        {{c.name}}
+      </md-option>
+    </md-select>
 
-<div class="row marketing">
-  <h4>HTML5 Boilerplate</h4>
-  <p>
-    HTML5 Boilerplate is a professional front-end template for building fast, robust, and adaptable web apps or sites.
-  </p>
+    <md-select placeholder="Buch" ng-model="book">
+      <md-option ng-repeat="b in books.items">
+        {{b.name}}
+      </md-option>
+    </md-select>
+  </md-card-content>
+</md-card>
 
-  <h4>Angular</h4>
-  <p>
-    AngularJS is a toolset for building the framework most suited to your application development.
-  </p>
-
-  <h4>Karma</h4>
-  <p>Spectacular Test Runner for JavaScript.</p>
-</div>
+<md-card>
+  <md-card-content>
+    <md-list>
+      <md-list-item class="md-2-line" ng-repeat="c in songs.items" ng-controller="SongItemCtrl">
+        <div class="md-list-item-text">
+          <h2>{{c.name}}</h2>
+          <span>{{bk.items[0].name}} </span><span> {{comp.items[0].name}}</span>
+        </div>
+      </md-list-item>
+    </md-list>
+  </md-card-content>
+</md-card>

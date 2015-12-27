@@ -7,34 +7,47 @@
 
         <md-button md-no-ink class="md-primary" ng-click="showAdd=!showAdd">Lied hinzufügen</md-button>
         <div ng-show="showAdd">
-          <md-input-container>
-            <label>Name</label>
-            <input ng-model="newSong.name">
-          </md-input-container>
-          <!--
+          <div>
 
-          <md-input-container>
-            <label>Verlag</label>
-            <input ng-model="newSong.publisher">
-          </md-input-container>
 
-          <md-input-container>
-            <label>ISBN</label>
-            <input ng-model="newSong.isbn">
-          </md-input-container>
+            <md-input-container>
+              <label>Name</label>
+              <input ng-model="newSong.name">
+            </md-input-container>
 
-          <md-input-container>
-            <label>Erscheinungsjahr</label>
-            <input ng-model="newSong.year">
-          </md-input-container>
--->
+            <md-input-container>
+              <label>Musikstil</label>
+              <input ng-model="newSong.style">
+            </md-input-container>
+
+            <div>
+              <md-select placeholder="Buch" ng-model="book">
+                <md-option ng-repeat="b in books.items" value="{{b.id}}">
+                  {{b.name}}
+                </md-option>
+              </md-select>
+
+              <md-input-container>
+                <label>Seite</label>
+                <input ng-model="newSong.page">
+              </md-input-container>
+            </div>
+
+            <md-select placeholder="Komponist" ng-model="composer">
+              <md-option ng-repeat="c in composers.items" value="{{c.id}}">
+                {{c.name}}
+              </md-option>
+            </md-select>
+          </div>
+
+
           <md-button ng-click="save()"> Speichern </md-button>
           <md-button ng-click="cancel()"> Abbrechen </md-button>
 
         </div>
 
         <md-list>
-          <md-list-item class="md-2-line" ng-repeat="c in songs.items">
+          <md-list-item class="md-2-line" ng-repeat="c in songs.items" ng-controller="SongItemCtrl">
             <div class="md-list-item-text">
               <h2>{{c.name}}</h2>
               <md-button class="md-warn" ng-click="delete(c)">löschen</md-button>

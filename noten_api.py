@@ -17,8 +17,8 @@ package = 'rubbs.pc.noten'
 class Composer(EndpointsModel):
     _message_fields_schema = ('id', 'name', 'birthday', 'dayOfDeath', 'created')
     name = ndb.StringProperty()
-    birthday = ndb.DateTimeProperty()
-    dayOfDeath = ndb.DateTimeProperty()
+    birthday = ndb.StringProperty()
+    dayOfDeath = ndb.StringProperty()
     created = ndb.DateTimeProperty(auto_now_add=True)
 
 class Book(EndpointsModel):
@@ -36,9 +36,9 @@ class Song(EndpointsModel):
     style = ndb.StringProperty()
 
     # properties for book
-    book = ndb.KeyProperty()
+    book = ndb.StringProperty()
     page = ndb.IntegerProperty()
-    composer = ndb.KeyProperty()
+    composer = ndb.StringProperty()
     created = ndb.DateTimeProperty(auto_now_add=True)
 
 
@@ -46,8 +46,8 @@ class Song(EndpointsModel):
 API code
 """
 
-@endpoints.api(name='composer', version='v1')
-class ComposerApi(remote.Service):
+@endpoints.api(name='pc', version='v1')
+class PcApi(remote.Service):
 
     """ Composer Api """
     @Composer.method(path='composer', name='composer.add')
@@ -55,7 +55,7 @@ class ComposerApi(remote.Service):
         comp.put()
         return comp
 
-    @Composer.query_method(query_fields=('name',), path='composer', name='composer.get')
+    @Composer.query_method(query_fields=('name', 'id'), path='composer', name='composer.get')
     def getComposer(self, query):
         return query
 
@@ -71,12 +71,12 @@ class ComposerApi(remote.Service):
         book.put()
         return book
 
-    @Book.query_method(query_fields=('name','year'), path='book', name='book.get')
+    @Book.query_method(query_fields=('name', 'year', 'id'), path='book', name='book.get')
     def getBook(self, query):
         return query
 
     @Book.method( path='book/{id}', http_method='DELETE', name='book.delete', response_fields=())
-    def deleteComposer(self, object):
+    def deleteBook(self, object):
         object.key.delete()
         return object
 
@@ -87,14 +87,14 @@ class ComposerApi(remote.Service):
         song.put()
         return song
 
-    @Song.query_method (query_fields=('name', 'type', 'book'), path='song', name='song.get')
+    @Song.query_method (query_fields=('name', 'style', 'book'), path='song', name='song.get')
     def getSong(self, query):
         return query
 
     @Song.method( path='song/{id}', http_method='DELETE', name='song.delete', response_fields=())
-    def deleteComposer(self, object):
+    def deleteSong(self, object):
         object.key.delete()
         return object
 
 
-APPLICATION = endpoints.api_server([ComposerApi])
+APPLICATION = endpoints.api_server([PcApi])
